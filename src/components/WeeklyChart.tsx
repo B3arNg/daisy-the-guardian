@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { AreaChart, Area, XAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { supabase } from '../utils/supabase';
+import Skeleton from './Skeleton';
 
 interface EmotionLog {
   created_at: string;
@@ -53,10 +54,15 @@ const CustomAreaTooltip = ({ active, payload, label }: CustomTooltipProps) => {
 
 export default function WeeklyChart() {
   const [logs, setLogs] = useState<EmotionLog[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchLogs = async () => {
+    setIsLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
 
     const { data } = await supabase
       .from('emotion_logs')
@@ -64,6 +70,7 @@ export default function WeeklyChart() {
       .eq('user_id', user.id);
       
     if (data) setLogs(data as EmotionLog[]);
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -101,34 +108,49 @@ export default function WeeklyChart() {
       <h4 className="text-2xl font-serif italic mb-2 text-slate-800 dark:text-white">Emotional Volume</h4>
       <p className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-8">Weekly Progress</p>
       
-      <div className="w-full h-72">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={weeklyData} margin={{ top: 10, right: 0, left: 0, bottom: 20 }}>
-            <defs>
-              {Object.entries(COLORS).map(([key, color]) => (
-                <linearGradient key={key} id={`color${key}`} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={color} stopOpacity={0.5} />
-                  <stop offset="100%" stopColor={color} stopOpacity={0} />
-                </linearGradient>
-              ))}
-            </defs>
-            <XAxis 
-              dataKey="name" 
-              axisLine={false} 
-              tickLine={false} 
-              tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 'bold' }} 
-              dy={15} 
-            />
-            <Tooltip content={<CustomAreaTooltip />} cursor={{ stroke: 'rgba(148, 163, 184, 0.2)', strokeWidth: 2, strokeDasharray: '4 4' }} />
-            
-            <Area type="monotone" dataKey="Joy" stroke={COLORS.Joy} strokeWidth={3} fillOpacity={1} fill="url(#colorJoy)" />
-            <Area type="monotone" dataKey="Sadness" stroke={COLORS.Sadness} strokeWidth={3} fillOpacity={1} fill="url(#colorSadness)" />
-            <Area type="monotone" dataKey="Anger" stroke={COLORS.Anger} strokeWidth={3} fillOpacity={1} fill="url(#colorAnger)" />
-            <Area type="monotone" dataKey="Fear" stroke={COLORS.Fear} strokeWidth={3} fillOpacity={1} fill="url(#colorFear)" />
-            <Area type="monotone" dataKey="Surprise" stroke={COLORS.Surprise} strokeWidth={3} fillOpacity={1} fill="url(#colorSurprise)" />
-            <Area type="monotone" dataKey="Disgust" stroke={COLORS.Disgust} strokeWidth={3} fillOpacity={1} fill="url(#colorDisgust)" />
-          </AreaChart>
-        </ResponsiveContainer>
+      <div className="w-full h-72 flex items-center justify-center">
+        {isLoading ? (
+          <div className="w-full h-full flex flex-col justify-end gap-4">
+             <div className="flex items-end justify-between h-40 gap-2">
+                {Array.from({ length: 7 }).map((_, i) => (
+                  <Skeleton key={i} className="flex-1" style={{ height: `${Math.random() * 60 + 20}%` }} />
+                ))}
+             </div>
+             <div className="flex justify-between">
+                {Array.from({ length: 7 }).map((_, i) => (
+                  <Skeleton key={i} className="w-10 h-4" />
+                ))}
+             </div>
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={weeklyData} margin={{ top: 10, right: 0, left: 0, bottom: 20 }}>
+              <defs>
+                {Object.entries(COLORS).map(([key, color]) => (
+                  <linearGradient key={key} id={`color${key}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={color} stopOpacity={0.5} />
+                    <stop offset="100%" stopColor={color} stopOpacity={0} />
+                  </linearGradient>
+                ))}
+              </defs>
+              <XAxis 
+                dataKey="name" 
+                axisLine={false} 
+                tickLine={false} 
+                tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 'bold' }} 
+                dy={15} 
+              />
+              <Tooltip content={<CustomAreaTooltip />} cursor={{ stroke: 'rgba(148, 163, 184, 0.2)', strokeWidth: 2, strokeDasharray: '4 4' }} />
+              
+              <Area type="monotone" dataKey="Joy" stroke={COLORS.Joy} strokeWidth={3} fillOpacity={1} fill="url(#colorJoy)" />
+              <Area type="monotone" dataKey="Sadness" stroke={COLORS.Sadness} strokeWidth={3} fillOpacity={1} fill="url(#colorSadness)" />
+              <Area type="monotone" dataKey="Anger" stroke={COLORS.Anger} strokeWidth={3} fillOpacity={1} fill="url(#colorAnger)" />
+              <Area type="monotone" dataKey="Fear" stroke={COLORS.Fear} strokeWidth={3} fillOpacity={1} fill="url(#colorFear)" />
+              <Area type="monotone" dataKey="Surprise" stroke={COLORS.Surprise} strokeWidth={3} fillOpacity={1} fill="url(#colorSurprise)" />
+              <Area type="monotone" dataKey="Disgust" stroke={COLORS.Disgust} strokeWidth={3} fillOpacity={1} fill="url(#colorDisgust)" />
+            </AreaChart>
+          </ResponsiveContainer>
+        )}
       </div>
     </div>
   );

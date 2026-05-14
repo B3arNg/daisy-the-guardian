@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../utils/supabase';
+import Skeleton from './Skeleton';
 
 interface EmotionLog {
   id: string;
@@ -31,10 +32,15 @@ const config: Record<string, EmotionConfig> = {
 export default function Dashboard({ limit, showFilters = false }: { limit?: number; showFilters?: boolean }) {
   const [logs, setLogs] = useState<EmotionLog[]>([]);
   const [timeframe, setTimeframe] = useState<'day' | 'week' | 'month' | 'all'>('all');
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchLogs = useCallback(async () => {
+    setIsLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
 
     let query = supabase
       .from('emotion_logs')
@@ -54,6 +60,7 @@ export default function Dashboard({ limit, showFilters = false }: { limit?: numb
 
     const { data } = await query;
     if (data) setLogs(data as EmotionLog[]);
+    setIsLoading(false);
   }, [limit, timeframe]);
 
   useEffect(() => {
@@ -97,7 +104,19 @@ export default function Dashboard({ limit, showFilters = false }: { limit?: numb
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {logs.length === 0 ? (
+        {isLoading ? (
+          Array.from({ length: limit || 6 }).map((_, i) => (
+            <div key={i} className="h-[280px] rounded-[2rem] bg-white/30 dark:bg-slate-800/20 border-2 border-dashed border-slate-200 dark:border-slate-700 p-6">
+              <div className="flex justify-between mb-6">
+                <Skeleton className="w-12 h-12 rounded-2xl" />
+                <Skeleton className="w-20 h-8 rounded-lg" />
+              </div>
+              <Skeleton className="w-1/2 h-6 mb-2" />
+              <Skeleton className="w-3/4 h-4 mb-6" />
+              <Skeleton className="w-full h-20 rounded-2xl" />
+            </div>
+          ))
+        ) : logs.length === 0 ? (
           <div className="col-span-full text-center py-24">
             <span className="material-symbols-outlined text-6xl text-slate-300 dark:text-slate-700 mb-4">history_toggle_off</span>
             <p className="text-slate-500 dark:text-slate-400 text-lg">No reflections found for this period.</p>

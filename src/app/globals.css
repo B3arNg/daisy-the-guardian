@@ -79,3 +79,9 @@ body { margin: 0; padding: 0; cursor: none; overflow-x: hidden; }
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+@media (pointer: coarse) {
+    #custom-cursor, #cursor-glow {
+        display: none !important;
+    }
+}
