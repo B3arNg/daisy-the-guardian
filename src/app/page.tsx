@@ -111,10 +111,10 @@ export default function Home() {
           <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
             <button 
               onClick={() => setActiveTab('dashboard')}
-              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              className="flex items-center gap-3 hover:opacity-80 transition-opacity"
             >
-              <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white">
-                <span className="material-symbols-outlined">pets</span>
+              <div className="w-12 h-12 overflow-hidden rounded-2xl flex items-center justify-center shadow-lg shadow-primary/10">
+                <img src="/brand-icon.jpg" alt="Daisy" className="w-full h-full object-cover" />
               </div>
               <h1 className="text-2xl font-extrabold tracking-tight">Daisy the Guardian</h1>
             </button>
