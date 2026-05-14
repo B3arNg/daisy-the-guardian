@@ -97,7 +97,7 @@ export default function WeeklyChart() {
   const weeklyData = getWeeklyData();
 
   return (
-    <div className="p-8 md:p-12 rounded-[2.5rem] bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white dark:border-slate-800 shadow-2xl shadow-primary/5 hover:border-primary/20 transition-all">
+    <div className="p-8 md:p-12 rounded-[2.5rem] bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white dark:border-slate-800 shadow-2xl shadow-primary/5 hover:border-primary/20 transition-all outline-none select-none">
       <h4 className="text-2xl font-serif italic mb-2 text-slate-800 dark:text-white">Emotional Volume</h4>
       <p className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-8">Weekly Progress</p>
       
