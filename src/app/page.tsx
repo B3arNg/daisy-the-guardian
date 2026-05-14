@@ -114,7 +114,7 @@ export default function Home() {
               className="flex items-center gap-3 hover:opacity-80 transition-opacity"
             >
               <div className="w-12 h-12 overflow-hidden rounded-2xl flex items-center justify-center shadow-lg shadow-primary/10">
-                <img src="/brand-icon.jpg" alt="Daisy" className="w-full h-full object-cover" />
+                <img src="/brand-icon.png" alt="Daisy" className="w-full h-full object-cover" />
               </div>
               <h1 className="text-2xl font-extrabold tracking-tight">Daisy the Guardian</h1>
             </button>

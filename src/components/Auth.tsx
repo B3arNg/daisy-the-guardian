@@ -57,7 +57,7 @@ export default function Auth() {
         <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl p-8 md:p-12 rounded-[2.5rem] border border-white dark:border-slate-800 shadow-2xl shadow-primary/10">
           <div className="text-center mb-10">
             <div className="w-24 h-24 overflow-hidden rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-xl shadow-primary/20 rotate-3 hover:rotate-0 transition-transform duration-500">
-              <img src="/brand-icon.jpg" alt="Daisy" className="w-full h-full object-cover" />
+              <img src="/brand-icon.png" alt="Daisy" className="w-full h-full object-cover" />
             </div>
             <h2 className="text-3xl font-serif italic text-slate-800 dark:text-white mb-2">Welcome Back</h2>
             <p className="text-slate-500 dark:text-slate-400 text-sm">

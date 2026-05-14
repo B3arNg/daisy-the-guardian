@@ -131,8 +131,12 @@ export default function Dashboard({ limit, showFilters = false }: { limit?: numb
                 className={`flex flex-col h-full rounded-[2rem] bg-white/50 dark:bg-slate-800/30 border-2 ${c.borderClass} p-6 hover:scale-[1.02] transition-all group shadow-sm hover:shadow-xl`}
               >
                 <div className="flex justify-between items-start mb-6">
-                  <div className={`w-12 h-12 rounded-2xl ${c.bgClass} flex items-center justify-center shadow-inner`}>
-                    <span className={`material-symbols-outlined text-2xl ${c.colorClass}`}>{c.icon}</span>
+                  <div className={`w-12 h-12 rounded-2xl ${c.bgClass} flex items-center justify-center shadow-inner overflow-hidden`}>
+                    {c.icon === 'pets' ? (
+                      <img src="/brand-icon.png" alt="Daisy" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className={`material-symbols-outlined text-2xl ${c.colorClass}`}>{c.icon}</span>
+                    )}
                   </div>
                   <div className="text-right">
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
