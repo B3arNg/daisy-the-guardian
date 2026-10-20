@@ -19,11 +19,12 @@ land here). This file adds project-specific guidance and wins on direct conflict
 
 - Use this repository's private `.env.local` for application URL/API keys. Keep secret/service-role keys server-only.
 - For CLI or Management API control, require an owning-account PAT in the Git-ignored, mode-0600 `.env.control.local`. Prefer a scoped PAT restricted to this project and permissions required by the authorized workflow; this is separate from application API keys.
-- Pass the local PAT only to the child command, overriding any inherited global `SUPABASE_ACCESS_TOKEN`. Stop when it is empty, masked or invalid; do not fall back to global login/keyring credentials or switch dashboard accounts.
+- Clear inherited `SUPABASE_ACCESS_TOKEN` and `SUPABASE_PROJECT_REF` only in the child process before loading the local control file. Pass its PAT and explicit target only to that child command. Stop when the token is empty, masked or invalid; do not fall back to global login/keyring credentials or switch dashboard accounts.
 - Verify the intended project reference and access before mutations. Pass project flags explicitly; `SUPABASE_PROJECT_REF` in the local file records the target and is not automatically consumed by every CLI command. Never dump env files or reveal keys in tool output.
 
 Application variables: `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`; this app does not need a service-role key.
 Read the intended target from `.env.control.local`, compare it with the app URL and TASK.md, and retain any staging/production identity guards.
+Windows command details remain in the host's private `SUPABASE-CONTROL.md` when present. Preserve private env files and credential backups during cleanup.
 
 ## Documentation navigation
 

@@ -4,13 +4,13 @@ Live work board: current job, open items, decisions, handoff. Architecture is in
 
 ## Repo state (2026-10-20)
 
-- Continuation branch: `feature/omarchy-continuation-20261020`, based on `develop` at `018a08c`. Existing deployment branches retain their prior history.
+- Integration branch: `develop`, now including `feature/omarchy-continuation-20261020`. The feature branch is retained for traceability; `main` remains separate.
 - Snapshot: the 16-bit Pixel Hearth redesign, source sprites, design/architecture/operations docs and agent navigation. Generated Supabase CLI state is excluded; private env files remain ignored.
 - Verification (2026-10-20): lint passes with 20 non-blocking warnings, and build passes. Four lint errors were repaired: unknown auth errors are narrowed, loading changes run in asynchronous auth response callbacks, and chart time is stored outside render. No test suite exists.
 
 ## Active
 
-The reviewed continuation snapshot is ready for Git publication and Windows continuation. Commit/fetch receipts are maintained in the workspace `docs/git-handoff-20261020.md`. Browser acceptance and hosted-data writes were not part of the repository checks.
+No active implementation task. The reviewed continuation snapshot is integrated into `develop`; merge/pull receipts are maintained in workspace `docs/git-merge-windows-20261020.md`. Browser acceptance remains open below; hosted-data writes were not part of the repository checks.
 
 ## Open items
 
@@ -21,7 +21,7 @@ The reviewed continuation snapshot is ready for Git publication and Windows cont
 
 ## Decisions
 
-- Project docs are meant to be tracked in Git here (root `AGENTS.md` says so); they are still untracked, so commit them with the redesign if kept.
+- Project documentation and the redesign are tracked in Git. Keep Windows' own coordination files rather than replacing them with another host's working notes.
 - `CLAUDE.md` stays a one-line `@AGENTS.md` pointer; write rules into `AGENTS.md`.
 - No service-role key. Security is RLS-only; the app only `select`s and `insert`s, so edit/delete UI needs RLS policies first.
 - Next.js is 16.2.6, which diverges from common training data: read `node_modules/next/dist/docs/` before writing framework code.
