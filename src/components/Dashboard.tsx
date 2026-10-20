@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../utils/supabase';
-import Skeleton from './Skeleton';
 
 interface EmotionLog {
   id: string;
@@ -14,29 +13,30 @@ interface EmotionLog {
 }
 
 interface EmotionConfig {
-  icon: string;
-  colorClass: string;
-  bgClass: string;
-  borderClass: string;
+  snackImg: string;
+  snackName: string;
+  badgeBg: string;
+  borderHex: string;
+  cardBg: string;
 }
 
 const config: Record<string, EmotionConfig> = {
-  Joy: { icon: 'sunny', colorClass: 'text-yellow-500', bgClass: 'bg-yellow-100 dark:bg-yellow-900/30', borderClass: 'border-yellow-200 dark:border-yellow-900/50' },
-  Sadness: { icon: 'water_drop', colorClass: 'text-blue-500', bgClass: 'bg-blue-100 dark:bg-blue-900/30', borderClass: 'border-blue-200 dark:border-blue-900/50' },
-  Anger: { icon: 'local_fire_department', colorClass: 'text-red-500', bgClass: 'bg-red-100 dark:bg-red-900/30', borderClass: 'border-red-200 dark:border-red-900/50' },
-  Fear: { icon: 'visibility_off', colorClass: 'text-purple-500', bgClass: 'bg-purple-100 dark:bg-purple-900/30', borderClass: 'border-purple-200 dark:border-purple-900/50' },
-  Surprise: { icon: 'auto_awesome', colorClass: 'text-orange-500', bgClass: 'bg-orange-100 dark:bg-orange-900/30', borderClass: 'border-orange-200 dark:border-orange-900/50' },
-  Disgust: { icon: 'sentiment_dissatisfied', colorClass: 'text-emerald-500', bgClass: 'bg-emerald-100 dark:bg-emerald-900/30', borderClass: 'border-emerald-200 dark:border-emerald-900/50' },
+  Joy: { snackImg: '/pixel-assets/bear_toast.png', snackName: 'Cheddar Toast', badgeBg: 'bg-[#FEF08A] text-[#854D0E]', borderHex: '#EAB308', cardBg: 'bg-[#FEF9C3] dark:bg-[#422006]/40' },
+  Sadness: { snackImg: '/pixel-assets/iced_coffee.png', snackName: 'Iced Coffee', badgeBg: 'bg-[#BFDBFE] text-[#1E40AF]', borderHex: '#3B82F6', cardBg: 'bg-[#DBEAFE] dark:bg-[#172554]/40' },
+  Anger: { snackImg: '/pixel-assets/coffee_cup.png', snackName: 'Hot Espresso', badgeBg: 'bg-[#FECACA] text-[#991B1B]', borderHex: '#EF4444', cardBg: 'bg-[#FEE2E2] dark:bg-[#450A0A]/40' },
+  Fear: { snackImg: '/pixel-assets/boba_bottle.png', snackName: 'Boba Potion', badgeBg: 'bg-[#E9D5FF] text-[#6B21A8]', borderHex: '#A855F7', cardBg: 'bg-[#F3E8FF] dark:bg-[#3B0764]/40' },
+  Surprise: { snackImg: '/pixel-assets/strawberry_cake.png', snackName: 'Sweet Berry', badgeBg: 'bg-[#FFEDD5] text-[#9A3412]', borderHex: '#F97316', cardBg: 'bg-[#FFEDD5] dark:bg-[#431407]/40' },
+  Disgust: { snackImg: '/pixel-assets/bear_popsicle.png', snackName: 'Mint Ice', badgeBg: 'bg-[#BBF7D0] text-[#166534]', borderHex: '#10B981', cardBg: 'bg-[#DCFCE7] dark:bg-[#052E16]/40' },
 };
 
 export default function Dashboard({ limit, showFilters = false }: { limit?: number; showFilters?: boolean }) {
   const [logs, setLogs] = useState<EmotionLog[]>([]);
   const [timeframe, setTimeframe] = useState<'day' | 'week' | 'month' | 'all'>('all');
+  const [selectedEmotion, setSelectedEmotion] = useState<string>('all');
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchLogs = useCallback(async () => {
+  const fetchLogs = useCallback(() => supabase.auth.getUser().then(async ({ data: { user } }) => {
     setIsLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       setIsLoading(false);
       return;
@@ -59,9 +59,15 @@ export default function Dashboard({ limit, showFilters = false }: { limit?: numb
     }
 
     const { data } = await query;
-    if (data) setLogs(data as EmotionLog[]);
+    if (data) {
+      let filtered = data as EmotionLog[];
+      if (selectedEmotion !== 'all') {
+        filtered = filtered.filter(l => l.core_emotion === selectedEmotion);
+      }
+      setLogs(filtered);
+    }
     setIsLoading(false);
-  }, [limit, timeframe]);
+  }), [limit, timeframe, selectedEmotion]);
 
   useEffect(() => {
     fetchLogs();
@@ -73,92 +79,136 @@ export default function Dashboard({ limit, showFilters = false }: { limit?: numb
   }, [fetchLogs]);
 
   return (
-    <section className={`p-8 md:p-12 rounded-[2.5rem] bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white dark:border-slate-800 shadow-2xl shadow-primary/5 hover:border-primary/20 transition-all ${showFilters ? 'min-h-[600px]' : ''}`}>
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+    <section className="bg-[#FFFDF0] dark:bg-[#1A120C] pixel-box-lg p-6 md:p-10 relative">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b-4 border-[#2B1E16] dark:border-[#FDF6E2] pb-4 mb-8">
         <div>
-          <h3 className="text-3xl md:text-4xl font-serif italic text-slate-800 dark:text-white">
-            {showFilters ? 'Your Emotions Log' : 'Recent Reflections'}
-          </h3>
-          <p className="text-sm font-bold uppercase tracking-widest text-slate-400 mt-2">Recorded Reflections</p>
+          <div className="flex items-center gap-2">
+            <span className="text-xl">📜</span>
+            <h3 className="font-pixel text-sm md:text-lg text-[#2B1E16] dark:text-[#FDF6E2]">
+              {showFilters ? 'QUEST ARCHIVE (ALL LOGS)' : 'RECENT REFLECTIONS'}
+            </h3>
+          </div>
+          <p className="font-silk text-[10px] text-[#785944] dark:text-[#C5AC97] uppercase mt-1">
+            Recorded memories &amp; emotional discoveries
+          </p>
         </div>
 
         {showFilters && (
-          <div className="flex w-full md:w-auto p-1 bg-slate-100 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-x-auto no-scrollbar">
-            <div className="flex flex-1 md:flex-none">
+          <div className="flex flex-wrap gap-2 items-center">
+            {/* Timeframe selector */}
+            <div className="flex bg-[#FDF6E2] dark:bg-[#251A12] pixel-box p-1">
               {(['day', 'week', 'month', 'all'] as const).map((t) => (
                 <button
                   key={t}
                   onClick={() => setTimeframe(t)}
-                  className={`flex-1 md:flex-none px-3 md:px-6 py-2 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                  className={`px-3 py-1 font-pixel text-[9px] uppercase transition-all ${
                     timeframe === t 
-                      ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' 
-                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'
+                      ? 'bg-[#FBBF24] text-[#2B1E16] pixel-box'
+                      : 'text-[#785944] dark:text-[#C5AC97] hover:text-[#2B1E16]'
                   }`}
                 >
-                  {t}
+                  {t === 'day' ? 'Today' : t === 'week' ? '7 Days' : t === 'month' ? '30 Days' : 'All'}
                 </button>
               ))}
             </div>
+
+            {/* Emotion filter chips */}
+            <select
+              value={selectedEmotion}
+              onChange={e => setSelectedEmotion(e.target.value)}
+              className="px-3 py-1.5 bg-[#FDF6E2] dark:bg-[#251A12] pixel-box font-pixel text-[9px] text-[#2B1E16] dark:text-[#FDF6E2] focus:outline-none"
+            >
+              <option value="all">★ All Moods</option>
+              <option value="Joy">🧀 Joy (Toast)</option>
+              <option value="Sadness">☕ Sadness (Iced Coffee)</option>
+              <option value="Anger">🔥 Anger (Espresso)</option>
+              <option value="Fear">🧋 Fear (Potion)</option>
+              <option value="Surprise">🍰 Surprise (Berry)</option>
+              <option value="Disgust">🍧 Disgust (Mint)</option>
+            </select>
           </div>
         )}
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {isLoading ? (
-          Array.from({ length: limit || 6 }).map((_, i) => (
-            <div key={i} className="h-[280px] rounded-[2rem] bg-white/30 dark:bg-slate-800/20 border-2 border-dashed border-slate-200 dark:border-slate-700 p-6">
-              <div className="flex justify-between mb-6">
-                <Skeleton className="w-12 h-12 rounded-2xl" />
-                <Skeleton className="w-20 h-8 rounded-lg" />
-              </div>
-              <Skeleton className="w-1/2 h-6 mb-2" />
-              <Skeleton className="w-3/4 h-4 mb-6" />
-              <Skeleton className="w-full h-20 rounded-2xl" />
+          Array.from({ length: limit || 3 }).map((_, i) => (
+            <div key={i} className="h-56 bg-[#FDF6E2] dark:bg-[#251A12] pixel-box animate-pulse p-4 flex flex-col justify-between">
+              <div className="w-1/2 h-4 bg-black/10 dark:bg-white/10" />
+              <div className="w-full h-16 bg-black/10 dark:bg-white/10" />
+              <div className="w-1/3 h-4 bg-black/10 dark:bg-white/10" />
             </div>
           ))
         ) : logs.length === 0 ? (
-          <div className="col-span-full text-center py-24">
-            <span className="material-symbols-outlined text-6xl text-slate-300 dark:text-slate-700 mb-4">history_toggle_off</span>
-            <p className="text-slate-500 dark:text-slate-400 text-lg">No reflections found for this period.</p>
+          <div className="col-span-full text-center py-16 bg-[#FDF6E2] dark:bg-[#251A12] pixel-box">
+            <img src="/pixel-assets/daisy_hamster.png" alt="Empty" className="w-16 h-16 pixel-art mx-auto mb-4 opacity-50" />
+            <p className="font-pixel text-xs text-[#2B1E16] dark:text-[#FDF6E2] mb-2">NO QUEST LOGS FOUND</p>
+            <p className="font-vt text-2xl text-[#785944] dark:text-[#C5AC97]">Log a new reflection to earn cheddar treats for Daisy!</p>
           </div>
         ) : (
           logs.map((log) => {
-            const c = config[log.core_emotion] || { icon: 'pets', colorClass: 'text-slate-500', bgClass: 'bg-slate-100 dark:bg-slate-800', borderClass: 'border-slate-200 dark:border-slate-800' };
-            
+            const c = config[log.core_emotion] || config.Joy;
+            const logDate = new Date(log.created_at);
+
             return (
               <div 
-                key={log.id} 
-                className={`flex flex-col h-full rounded-[2rem] bg-white/50 dark:bg-slate-800/30 border-2 ${c.borderClass} p-6 hover:scale-[1.02] transition-all group shadow-sm hover:shadow-xl`}
+                key={log.id}
+                className={`pixel-box flex flex-col justify-between ${c.cardBg} p-5 hover:translate-y-[-2px] transition-transform relative group`}
               >
-                <div className="flex justify-between items-start mb-6">
-                  <div className={`w-12 h-12 rounded-2xl ${c.bgClass} flex items-center justify-center shadow-inner overflow-hidden`}>
-                    {c.icon === 'pets' ? (
-                      <img src="/brand-icon.png" alt="Daisy" className="w-full h-full object-cover" />
-                    ) : (
-                      <span className={`material-symbols-outlined text-2xl ${c.colorClass}`}>{c.icon}</span>
+                <div>
+                  {/* Top Bar: Icon + Timestamps */}
+                  <div className="flex justify-between items-start mb-3 border-b-2 border-[#2B1E16] dark:border-[#FDF6E2] pb-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-white/80 dark:bg-black/40 pixel-box flex items-center justify-center p-1">
+                        <img src={c.snackImg} alt={log.core_emotion} className="w-8 h-8 object-contain pixel-art drop-shadow-[0_2px_0_rgba(0,0,0,0.15)]" />
+                      </div>
+                      <div>
+                        <h4 className="font-pixel text-xs text-[#2B1E16] dark:text-[#FDF6E2]">
+                          {log.core_emotion}
+                        </h4>
+                        <span className="font-silk text-[8px] uppercase tracking-wider text-[#785944] dark:text-[#C5AC97]">
+                          {c.snackName}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="text-right">
+                      <p className="font-pixel text-[9px] text-[#2B1E16] dark:text-[#FDF6E2]">
+                        {logDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                      </p>
+                      <p className="font-silk text-[8px] text-[#785944] dark:text-[#C5AC97]">
+                        {logDate.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Nuance Tags */}
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    <span className="px-2 py-0.5 bg-[#FFFDF0] dark:bg-[#1A120C] pixel-box font-silk text-[8px] font-bold text-[#2B1E16] dark:text-[#FDF6E2]">
+                      ▶ {log.secondary_emotion}
+                    </span>
+                    {log.tertiary_emotion && (
+                      <span className="px-2 py-0.5 bg-[#FEF08A] text-[#713F12] pixel-box font-silk text-[8px] font-bold">
+                        ★ {log.tertiary_emotion}
+                      </span>
                     )}
                   </div>
-                  <div className="text-right">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                      {new Date(log.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                    </p>
-                    <p className="text-[10px] font-bold text-slate-500 uppercase">
-                      {new Date(log.created_at).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
+
+                  {/* Note Parchment Box */}
+                  <div className="p-3 bg-[#FFFDF0] dark:bg-[#150F0B] pixel-box pixel-inset min-h-[70px]">
+                    <p className="font-vt text-2xl text-[#2B1E16] dark:text-[#FDF6E2] leading-relaxed">
+                      {log.notes ? `"${log.notes}"` : <span className="opacity-40 italic">No notes attached.</span>}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex-1">
-                  <h4 className={`text-xl font-bold ${c.colorClass} mb-1`}>{log.core_emotion}</h4>
-                  <p className="text-xs font-black uppercase tracking-wider text-slate-400 mb-4 opacity-70">
-                    {log.secondary_emotion} {log.tertiary_emotion ? `• ${log.tertiary_emotion}` : ''}
-                  </p>
-                  
-                  <div className="bg-slate-50 dark:bg-slate-900/40 rounded-2xl p-4 min-h-[80px] border border-slate-100 dark:border-slate-800/50">
-                    <p className="text-sm text-slate-600 dark:text-slate-300 italic leading-relaxed">
-                      {log.notes ? `"${log.notes}"` : "No notes recorded."}
-                    </p>
-                  </div>
+                {/* Bottom Reward Tag */}
+                <div className="mt-4 pt-2 border-t-2 border-dashed border-[#2B1E16]/30 dark:border-[#FDF6E2]/30 flex items-center justify-between text-[9px] font-silk">
+                  <span className="text-[#854D0E] dark:text-[#FBBF24] flex items-center gap-1">
+                    <span>🧀</span>
+                    <span>Daisy rewarded: +1 Treat</span>
+                  </span>
+                  <span className="opacity-50">#LOG-{log.id.slice(0, 4)}</span>
                 </div>
               </div>
             );

@@ -22,7 +22,7 @@ export default function Auth() {
           password,
         });
         if (error) throw error;
-        setMessage({ type: 'success', text: 'Check your email for the confirmation link!' });
+        setMessage({ type: 'success', text: 'Check your email for the confirmation scroll!' });
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -30,8 +30,8 @@ export default function Auth() {
         });
         if (error) throw error;
       }
-    } catch (error: any) {
-      setMessage({ type: 'error', text: error.message });
+    } catch (error: unknown) {
+      setMessage({ type: 'error', text: error instanceof Error ? error.message : 'The request could not be completed.' });
     } finally {
       setLoading(false);
     }
@@ -52,24 +52,33 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
-      <div className="w-full max-w-md animate-in fade-in zoom-in duration-500">
-        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl p-8 md:p-12 rounded-[2.5rem] border border-white dark:border-slate-800 shadow-2xl shadow-primary/10">
-          <div className="text-center mb-10">
-            <div className="w-24 h-24 overflow-hidden rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-xl shadow-primary/20 rotate-3 hover:rotate-0 transition-transform duration-500">
-              <img src="/brand-icon.png" alt="Daisy" className="w-full h-full object-cover" />
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-md animate-in fade-in zoom-in duration-300">
+        <div className="bg-[#FFFDF0] dark:bg-[#1A120C] pixel-box-lg p-8 md:p-10 relative">
+          {/* Header & Mascot */}
+          <div className="text-center mb-8">
+            <div className="w-24 h-24 bg-[#FDF6E2] dark:bg-[#251A12] pixel-box flex items-center justify-center mx-auto mb-4 p-2 shadow-[4px_4px_0px_#2B1E16]">
+              <img
+                src="/pixel-assets/daisy_munching.gif"
+                alt="Daisy the Guardian"
+                className="w-full h-full object-contain pixel-art"
+              />
             </div>
-            <h2 className="text-3xl font-serif italic text-slate-800 dark:text-white mb-2">Welcome Back</h2>
-            <p className="text-slate-500 dark:text-slate-400 text-sm">
-              {mode === 'login' ? 'Continue your emotional journey with Daisy.' : 'Begin your mindfulness journey today.'}
+            <h2 className="font-pixel text-base md:text-lg text-[#2B1E16] dark:text-[#FDF6E2] mb-1">
+              DAISY THE GUARDIAN
+            </h2>
+            <p className="font-silk text-[10px] uppercase tracking-wider text-[#785944] dark:text-[#C5AC97]">
+              {mode === 'login' ? '★ Resume Your 16-Bit Journey ★' : '★ Begin A New Quest ★'}
             </p>
           </div>
 
+          {/* Google OAuth Pixel Button */}
           <button
+            type="button"
             onClick={handleGoogleLogin}
-            className="w-full py-4 mb-6 flex items-center justify-center gap-3 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl font-bold text-slate-700 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm active:scale-95"
+            className="w-full py-3 px-4 mb-6 flex items-center justify-center gap-3 bg-[#FDF6E2] dark:bg-[#251A12] pixel-btn font-pixel text-[10px] text-[#2B1E16] dark:text-[#FDF6E2] hover:bg-[#FEF08A] transition-colors"
           >
-            <svg className="w-5 h-5" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                 fill="#4285F4"
@@ -87,62 +96,65 @@ export default function Auth() {
                 fill="#EA4335"
               />
             </svg>
-            Continue with Google
+            <span>CONTINUE WITH GOOGLE</span>
           </button>
 
-          <div className="relative mb-8">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200 dark:border-slate-800"></div>
-            </div>
-            <div className="relative flex justify-center text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-              <span className="bg-[#FDFCFE] dark:bg-slate-900 px-4">Or with Email</span>
-            </div>
+          {/* Divider */}
+          <div className="relative mb-6 text-center border-b-2 border-dashed border-[#2B1E16] dark:border-[#FDF6E2]">
+            <span className="bg-[#FFFDF0] dark:bg-[#1A120C] px-3 font-silk text-[9px] uppercase tracking-widest text-[#785944] dark:text-[#C5AC97] relative top-2">
+              OR INSERT PASSKEY
+            </span>
           </div>
 
-          <form onSubmit={handleAuth} className="space-y-6">
+          <form onSubmit={handleAuth} className="space-y-4">
             <div>
-              <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-4">Email Address</label>
+              <label className="block font-silk text-[10px] uppercase text-[#785944] dark:text-[#C5AC97] mb-1">
+                Traveler Email
+              </label>
               <input
                 type="email"
-                placeholder="hello@example.com"
+                placeholder="traveler@sanctuary.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-6 py-4 rounded-2xl bg-slate-100 dark:bg-slate-800/50 border-2 border-transparent focus:border-primary/50 focus:bg-white dark:focus:bg-slate-800 outline-none transition-all dark:text-white"
+                className="w-full px-4 py-2.5 bg-[#FFFDF0] dark:bg-[#150F0B] pixel-box pixel-inset font-vt text-2xl text-[#2B1E16] dark:text-[#FDF6E2] focus:outline-none placeholder:text-[#9C8271]"
               />
             </div>
             <div>
-              <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 ml-4">Password</label>
+              <label className="block font-silk text-[10px] uppercase text-[#785944] dark:text-[#C5AC97] mb-1">
+                Secret Passkey
+              </label>
               <input
                 type="password"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-6 py-4 rounded-2xl bg-slate-100 dark:bg-slate-800/50 border-2 border-transparent focus:border-primary/50 focus:bg-white dark:focus:bg-slate-800 outline-none transition-all dark:text-white"
+                className="w-full px-4 py-2.5 bg-[#FFFDF0] dark:bg-[#150F0B] pixel-box pixel-inset font-vt text-2xl text-[#2B1E16] dark:text-[#FDF6E2] focus:outline-none placeholder:text-[#9C8271]"
               />
             </div>
 
             {message && (
-              <div className={`p-4 rounded-2xl text-xs font-bold ${message.type === 'error' ? 'bg-red-50 text-red-500 border border-red-100' : 'bg-emerald-50 text-emerald-600 border border-emerald-100'}`}>
+              <div className={`p-3 pixel-box text-xs font-vt text-2xl ${message.type === 'error' ? 'bg-[#FEE2E2] text-[#991B1B]' : 'bg-[#DCFCE7] text-[#166534]'}`}>
                 {message.text}
               </div>
             )}
 
             <button
+              type="submit"
               disabled={loading}
-              className="w-full py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-primary/10 disabled:opacity-50 disabled:hover:scale-100"
+              className="w-full py-3.5 bg-[#FBBF24] hover:bg-[#F59E0B] text-[#2B1E16] font-pixel text-xs pixel-btn mt-2 transition-all disabled:opacity-50"
             >
-              {loading ? 'Processing...' : mode === 'login' ? 'Enter Dashboard' : 'Create Account'}
+              {loading ? 'PROCESSING...' : mode === 'login' ? 'ENTER SANCTUARY ▶' : 'JOIN SANCTUARY ★'}
             </button>
           </form>
 
-          <div className="mt-8 text-center">
+          <div className="mt-6 text-center border-t-2 border-dashed border-[#2B1E16]/30 dark:border-[#FDF6E2]/30 pt-4">
             <button
               onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-              className="text-slate-400 hover:text-primary text-sm transition-colors"
+              className="font-silk text-[10px] text-[#785944] dark:text-[#C5AC97] hover:text-[#2B1E16] dark:hover:text-[#FDF6E2] transition-colors"
             >
-              {mode === 'login' ? "Don't have an account? Join Daisy" : "Already a member? Sign in"}
+              {mode === 'login' ? "New adventurer? Create account" : "Have a key? Sign in"}
             </button>
           </div>
         </div>

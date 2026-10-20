@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Throwaway agent artifacts — scratch scripts, probes, debug output.
+# Safe to delete wholesale; never imported by shipped code.
+temp-artifact/
+
+# Private agent settings and generated local tool state
+supabase/.temp/

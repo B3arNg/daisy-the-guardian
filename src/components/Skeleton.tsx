@@ -3,7 +3,7 @@ import { CSSProperties } from 'react';
 export default function Skeleton({ className, style }: { className?: string; style?: CSSProperties }) {
   return (
     <div 
-      className={`animate-pulse bg-slate-200 dark:bg-slate-800 rounded-2xl ${className}`} 
+      className={`animate-pulse bg-[#FDF6E2] dark:bg-[#251A12] pixel-box ${className || ''}`}
       style={style}
     />
   );
