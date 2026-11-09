@@ -117,7 +117,7 @@ No test suite exists — `lint` + `build` is the whole gate. Branches: `develop`
 ## 9. Status and credentials (2026-10-17)
 
 - `develop` includes the reviewed `feature/omarchy-continuation-20261020` snapshot: the 16-bit pixel redesign, artwork, documentation and four lint fixes. The feature branch is retained for traceability; `main` is separate. Windows keeps its own coordination docs and private configuration. Exact merge/pull receipts are in workspace `docs/git-merge-windows-20261020.md`.
-- Supabase project was ACTIVE_HEALTHY on 2026-10-09 (an earlier report said paused); read-only app-key checks passed on 2026-10-09. Application keys live in the private, Git-ignored `.env.local`; a project-scoped control token lives in `.env.control.local` (expires 2027-01-07; Windows holds a matching copy). Never copy values into docs.
+- Supabase project was ACTIVE_HEALTHY on 2026-10-09 (an earlier report said paused); read-only app-key checks passed on 2026-10-09. Application keys live in the private, Git-ignored `.env.local`; a project-scoped control token lives in `.env.control.local` (expires 2027-01-07; Windows holds a matching copy, verified there 2026-10-09: `temp-artifact/supabase-token-sync-20261009/verification.json`). Never copy values into docs.
 - Control commands: use the repo-local token in a child process, clear any inherited `SUPABASE_ACCESS_TOKEN`, and pass the explicit project ref. No global login fallback. Cross-project rules: `../SUPABASE-PROJECT-CREDENTIALS.md` (Omarchy only; do not copy or quote it).
 - Database writes, migrations and deployments were never exercised from this setup.
 
