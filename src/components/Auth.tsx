@@ -2,10 +2,13 @@
 
 import { useState } from 'react';
 import { supabase } from '../utils/supabase';
+import { parseUsername, USERNAME_HINT } from '../lib/username';
 
 export default function Auth() {
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState(''); // login: username or email
+  const [username, setUsername] = useState(''); // signup
+  const [email, setEmail] = useState(''); // signup
   const [password, setPassword] = useState('');
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [message, setMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null);
@@ -17,17 +20,38 @@ export default function Auth() {
 
     try {
       if (mode === 'signup') {
+        const name = parseUsername(username);
+        if (!name) throw new Error(`Invalid username. ${USERNAME_HINT}`);
         const { error } = await supabase.auth.signUp({
           email,
           password,
+          options: { data: { username: name } },
         });
-        if (error) throw error;
+        if (error) {
+          // The profile trigger rejects a taken username, which Supabase reports as a generic database error.
+          if (/database error/i.test(error.message)) {
+            throw new Error('That username is already taken. Choose another one.');
+          }
+          throw error;
+        }
         setMessage({ type: 'success', text: 'Check your email for the confirmation scroll!' });
-      } else {
+      } else if (identifier.includes('@')) {
         const { error } = await supabase.auth.signInWithPassword({
-          email,
+          email: identifier.trim(),
           password,
         });
+        if (error) throw error;
+      } else {
+        const response = await fetch('/api/auth/sign-in', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: identifier, password }),
+        });
+        const result = await response.json().catch(() => null);
+        if (!response.ok || !result?.session) {
+          throw new Error(result?.error || 'Could not sign in. Try again.');
+        }
+        const { error } = await supabase.auth.setSession(result.session);
         if (error) throw error;
       }
     } catch (error: unknown) {
@@ -54,20 +78,20 @@ export default function Auth() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md animate-in fade-in zoom-in duration-300">
-        <div className="bg-[#FFFDF0] dark:bg-[#1A120C] pixel-box-lg p-8 md:p-10 relative">
+        <div className="bg-canvas pixel-box-lg p-8 md:p-10 relative">
           {/* Header & Mascot */}
           <div className="text-center mb-8">
-            <div className="w-24 h-24 bg-[#FDF6E2] dark:bg-[#251A12] pixel-box flex items-center justify-center mx-auto mb-4 p-2 shadow-[4px_4px_0px_#2B1E16]">
+            <div className="w-24 h-24 bg-surface pixel-box flex items-center justify-center mx-auto mb-4 p-2 shadow-[4px_4px_0px_var(--shade)]">
               <img
                 src="/pixel-assets/daisy_munching.gif"
                 alt="Daisy the Guardian"
                 className="w-full h-full object-contain pixel-art"
               />
             </div>
-            <h2 className="font-pixel text-base md:text-lg text-[#2B1E16] dark:text-[#FDF6E2] mb-1">
+            <h2 className="font-pixel text-base md:text-lg text-ink mb-1">
               DAISY THE GUARDIAN
             </h2>
-            <p className="font-silk text-[10px] uppercase tracking-wider text-[#785944] dark:text-[#C5AC97]">
+            <p className="font-silk text-[10px] uppercase tracking-wider text-muted">
               {mode === 'login' ? '★ Resume Your 16-Bit Journey ★' : '★ Begin A New Quest ★'}
             </p>
           </div>
@@ -76,7 +100,7 @@ export default function Auth() {
           <button
             type="button"
             onClick={handleGoogleLogin}
-            className="w-full py-3 px-4 mb-6 flex items-center justify-center gap-3 bg-[#FDF6E2] dark:bg-[#251A12] pixel-btn font-pixel text-[10px] text-[#2B1E16] dark:text-[#FDF6E2] hover:bg-[#FEF08A] transition-colors"
+            className="w-full py-3 px-4 mb-6 flex items-center justify-center gap-3 bg-surface pixel-btn font-pixel text-[10px] text-ink hover:bg-hover-gold transition-colors"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path
@@ -100,42 +124,89 @@ export default function Auth() {
           </button>
 
           {/* Divider */}
-          <div className="relative mb-6 text-center border-b-2 border-dashed border-[#2B1E16] dark:border-[#FDF6E2]">
-            <span className="bg-[#FFFDF0] dark:bg-[#1A120C] px-3 font-silk text-[9px] uppercase tracking-widest text-[#785944] dark:text-[#C5AC97] relative top-2">
+          <div className="relative mb-6 text-center border-b-2 border-dashed border-line">
+            <span className="bg-canvas px-3 font-silk text-[9px] uppercase tracking-widest text-muted relative top-2">
               OR INSERT PASSKEY
             </span>
           </div>
 
           <form onSubmit={handleAuth} className="space-y-4">
+            {mode === 'login' ? (
+              <div>
+                <label htmlFor="identifier" className="block font-silk text-[10px] uppercase text-muted mb-1">
+                  Traveler Name or Email
+                </label>
+                <input
+                  id="identifier"
+                  type="text"
+                  autoComplete="username"
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  placeholder="daisy_fan"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  required
+                  className="w-full px-4 py-2.5 bg-canvas pixel-box pixel-inset font-vt text-2xl text-ink focus:outline-none placeholder:text-faint"
+                />
+              </div>
+            ) : (
+              <>
+                <div>
+                  <label htmlFor="username" className="block font-silk text-[10px] uppercase text-muted mb-1">
+                    Traveler Name
+                  </label>
+                  <input
+                    id="username"
+                    type="text"
+                    autoComplete="username"
+                    autoCapitalize="none"
+                    spellCheck={false}
+                    placeholder="daisy_fan"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                    minLength={3}
+                    maxLength={20}
+                    pattern="[A-Za-z0-9_.]{3,20}"
+                    title={USERNAME_HINT}
+                    className="w-full px-4 py-2.5 bg-canvas pixel-box pixel-inset font-vt text-2xl text-ink focus:outline-none placeholder:text-faint"
+                  />
+                  <p className="mt-1 font-silk text-[9px] text-faint">{USERNAME_HINT}</p>
+                </div>
+                <div>
+                  <label htmlFor="email" className="block font-silk text-[10px] uppercase text-muted mb-1">
+                    Traveler Email
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    placeholder="traveler@sanctuary.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="w-full px-4 py-2.5 bg-canvas pixel-box pixel-inset font-vt text-2xl text-ink focus:outline-none placeholder:text-faint"
+                  />
+                </div>
+              </>
+            )}
             <div>
-              <label className="block font-silk text-[10px] uppercase text-[#785944] dark:text-[#C5AC97] mb-1">
-                Traveler Email
-              </label>
-              <input
-                type="email"
-                placeholder="traveler@sanctuary.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full px-4 py-2.5 bg-[#FFFDF0] dark:bg-[#150F0B] pixel-box pixel-inset font-vt text-2xl text-[#2B1E16] dark:text-[#FDF6E2] focus:outline-none placeholder:text-[#9C8271]"
-              />
-            </div>
-            <div>
-              <label className="block font-silk text-[10px] uppercase text-[#785944] dark:text-[#C5AC97] mb-1">
+              <label className="block font-silk text-[10px] uppercase text-muted mb-1">
                 Secret Passkey
               </label>
               <input
                 type="password"
+                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-4 py-2.5 bg-[#FFFDF0] dark:bg-[#150F0B] pixel-box pixel-inset font-vt text-2xl text-[#2B1E16] dark:text-[#FDF6E2] focus:outline-none placeholder:text-[#9C8271]"
+                className="w-full px-4 py-2.5 bg-canvas pixel-box pixel-inset font-vt text-2xl text-ink focus:outline-none placeholder:text-faint"
               />
             </div>
 
             {message && (
-              <div className={`p-3 pixel-box text-xs font-vt text-2xl ${message.type === 'error' ? 'bg-[#FEE2E2] text-[#991B1B]' : 'bg-[#DCFCE7] text-[#166534]'}`}>
+              <div className={`p-3 pixel-box text-xs font-vt text-2xl ${message.type === 'error' ? 'bg-danger-soft text-danger-ink' : 'bg-success-soft text-success-ink'}`}>
                 {message.text}
               </div>
             )}
@@ -143,16 +214,19 @@ export default function Auth() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 bg-[#FBBF24] hover:bg-[#F59E0B] text-[#2B1E16] font-pixel text-xs pixel-btn mt-2 transition-all disabled:opacity-50"
+              className="w-full py-3.5 bg-gold hover:bg-gold-strong text-on-gold font-pixel text-xs pixel-btn mt-2 transition-all disabled:opacity-50"
             >
               {loading ? 'PROCESSING...' : mode === 'login' ? 'ENTER SANCTUARY ▶' : 'JOIN SANCTUARY ★'}
             </button>
           </form>
 
-          <div className="mt-6 text-center border-t-2 border-dashed border-[#2B1E16]/30 dark:border-[#FDF6E2]/30 pt-4">
+          <div className="mt-6 text-center border-t-2 border-dashed border-line/30 pt-4">
             <button
-              onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-              className="font-silk text-[10px] text-[#785944] dark:text-[#C5AC97] hover:text-[#2B1E16] dark:hover:text-[#FDF6E2] transition-colors"
+              onClick={() => {
+                setMode(mode === 'login' ? 'signup' : 'login');
+                setMessage(null);
+              }}
+              className="font-silk text-[10px] text-muted hover:text-ink transition-colors"
             >
               {mode === 'login' ? "New adventurer? Create account" : "Have a key? Sign in"}
             </button>

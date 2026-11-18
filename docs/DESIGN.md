@@ -4,19 +4,25 @@ name: Pixel Hearth — Daisy the Guardian Design System
 description: "An ultra-cozy, vibrant 16-bit retro pixel art interface inspired by classic Japanese RPGs, Stardew Valley, and Tamagotchi. Built on warm parchment tones, chunky chocolate ink outlines, stepped 4px pixel bevels, solid offset block shadows, and isolated transparent pixel food/snack sprites."
 
 colors:
-  canvas-light: "#FFFDF0" # Warm Parchment
-  canvas-dark: "#150F0B" # Dark Chocolate Hearth
-  surface-card: "#FDF6E2" # Aged Parchment Box
-  outline-ink: "#2B1E16" # Dark Chocolate Pixel Stroke
-  outline-light: "#FDF6E2" # Inverse Stroke
+  # Night Hearth theme (2026-11): semantic tokens live in src/app/globals.css (:root = light "Dawn Hearth", .dark = dark "Night Hearth").
+  # Components use token classes (bg-canvas, bg-surface, text-ink, text-muted, border-line, bg-gold, bg-joy-soft ...); never hardcode hex in components.
+  canvas-dark: "#120E1C" # Indigo dusk
+  surface-dark: "#221A33" # Plum card
+  ink-dark: "#F4E8D0" # Cream text
+  line-dark: "#E8D9BC" # Cream pixel stroke
+  shade-dark: "#5B3FA0" # Violet hard shadow
+  canvas-light: "#F7EEDC"
+  surface-light: "#FFF6E4"
+  ink-light: "#2A2038" # Plum ink (stroke + text)
+  gold: "#F6B84A" # Lamp amber accent (light: #F2A93B)
 
-  # 16-Bit Emotional & Snack Palette
-  joy: "#FBBF24" # Cheddar Gold (Bear Toast)
-  sadness: "#60A5FA" # Raindrop Blue (Iced Coffee)
-  anger: "#F87171" # Hot Ember Red (Hot Espresso)
-  fear: "#C084FC" # Mystic Lavender (Boba Potion)
-  surprise: "#FB923C" # Sweet Coral Orange (Strawberry Cake)
-  disgust: "#4ADE80" # Mint Herb Green (Matcha Popsicle)
+  # Emotion palette (--emo-*): soft card / badge shades are derived with color-mix
+  joy: "#F6B84A"
+  sadness: "#7FA8E8"
+  anger: "#EE7B6B"
+  fear: "#B79AE8"
+  surprise: "#F4935A"
+  disgust: "#6FCF97"
 
 typography:
   display-pixel:

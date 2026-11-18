@@ -10,12 +10,12 @@ interface EmotionLog {
 }
 
 const EMOTION_SNACKS: Record<string, { img: string; name: string; color: string }> = {
-  Joy: { img: '/pixel-assets/bear_toast.png', name: 'Joy', color: '#FBBF24' },
-  Sadness: { img: '/pixel-assets/iced_coffee.png', name: 'Sadness', color: '#60A5FA' },
-  Anger: { img: '/pixel-assets/coffee_cup.png', name: 'Anger', color: '#F87171' },
-  Fear: { img: '/pixel-assets/boba_bottle.png', name: 'Fear', color: '#C084FC' },
-  Surprise: { img: '/pixel-assets/strawberry_cake.png', name: 'Surprise', color: '#FB923C' },
-  Disgust: { img: '/pixel-assets/bear_popsicle.png', name: 'Disgust', color: '#4ADE80' }
+  Joy: { img: '/pixel-assets/bear_toast.png', name: 'Joy', color: 'var(--emo-joy)' },
+  Sadness: { img: '/pixel-assets/iced_coffee.png', name: 'Sadness', color: 'var(--emo-sadness)' },
+  Anger: { img: '/pixel-assets/coffee_cup.png', name: 'Anger', color: 'var(--emo-anger)' },
+  Fear: { img: '/pixel-assets/boba_bottle.png', name: 'Fear', color: 'var(--emo-fear)' },
+  Surprise: { img: '/pixel-assets/strawberry_cake.png', name: 'Surprise', color: 'var(--emo-surprise)' },
+  Disgust: { img: '/pixel-assets/bear_popsicle.png', name: 'Disgust', color: 'var(--emo-disgust)' }
 };
 
 interface DayStat {
@@ -109,41 +109,41 @@ export default function WeeklyChart() {
   }).length;
 
   return (
-    <div className="bg-[#FFFDF0] dark:bg-[#1A120C] pixel-box-lg p-6 md:p-10 relative">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b-4 border-[#2B1E16] dark:border-[#FDF6E2] pb-4 mb-8">
+    <div className="bg-canvas pixel-box-lg p-6 md:p-10 relative">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b-4 border-line pb-4 mb-8">
         <div>
           <div className="flex items-center gap-2">
             <span className="text-xl">📊</span>
-            <h4 className="font-pixel text-sm md:text-lg text-[#2B1E16] dark:text-[#FDF6E2]">
+            <h4 className="font-pixel text-sm md:text-lg text-ink">
               WEEKLY EMOTIONAL RHYTHM
             </h4>
           </div>
-          <p className="font-silk text-[10px] text-[#785944] dark:text-[#C5AC97] uppercase mt-1">
+          <p className="font-silk text-[10px] text-muted uppercase mt-1">
             7-day battle volume &amp; dominant snacks
           </p>
         </div>
 
-        <div className="flex items-center gap-3 px-3 py-2 bg-[#FDF6E2] dark:bg-[#251A12] pixel-box font-pixel text-[10px]">
+        <div className="flex items-center gap-3 px-3 py-2 bg-surface pixel-box font-pixel text-[10px]">
           <span>FEED LEVEL:</span>
-          <span className="text-[#CA8A04] dark:text-[#FBBF24] font-bold">
+          <span className="text-accent-ink font-bold">
             {totalWeeklyReflections} TREATS THIS WEEK
           </span>
         </div>
       </div>
 
       {isLoading ? (
-        <div className="h-64 flex items-center justify-center font-vt text-3xl text-[#785944]">
+        <div className="h-64 flex items-center justify-center font-vt text-3xl text-muted">
           LOADING 16-BIT DATA CARTRIDGE...
         </div>
       ) : (
         <div>
           {/* Stepped Pixel Bar Graph */}
-          <div className="grid grid-cols-7 gap-2 md:gap-4 h-64 items-end pb-4 pt-12 border-b-4 border-[#2B1E16] dark:border-[#FDF6E2] relative">
+          <div className="grid grid-cols-7 gap-2 md:gap-4 h-64 items-end pb-4 pt-12 border-b-4 border-line relative">
             {/* Background Grid Lines */}
-            <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-20 border-b border-dashed border-[#2B1E16] dark:border-[#FDF6E2]">
-              <div className="w-full border-b border-dashed border-[#2B1E16] dark:border-[#FDF6E2]" />
-              <div className="w-full border-b border-dashed border-[#2B1E16] dark:border-[#FDF6E2]" />
-              <div className="w-full border-b border-dashed border-[#2B1E16] dark:border-[#FDF6E2]" />
+            <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-20 border-b border-dashed border-line">
+              <div className="w-full border-b border-dashed border-line" />
+              <div className="w-full border-b border-dashed border-line" />
+              <div className="w-full border-b border-dashed border-line" />
             </div>
 
             {weeklyDays.map((d, i) => {
@@ -166,19 +166,19 @@ export default function WeeklyChart() {
                     className="w-full max-w-[48px] pixel-box transition-all group-hover:brightness-110 flex flex-col justify-between p-1"
                     style={{
                       height: `${heightPercent}%`,
-                      backgroundColor: d.total === 0 ? '#E2E8F0' : emoConfig.color
+                      backgroundColor: d.total === 0 ? 'var(--sunken)' : emoConfig.color
                     }}
                   >
                     <div className="w-full h-1 bg-white/60" />
-                    <span className="font-pixel text-[9px] text-[#2B1E16] text-center block">
+                    <span className={`font-pixel text-[9px] text-center block ${d.total === 0 ? 'text-muted' : 'text-on-gold'}`}>
                       {d.total > 0 ? d.total : '0'}
                     </span>
                   </div>
 
                   {/* Day Label */}
                   <div className="mt-3 text-center">
-                    <p className="font-pixel text-[10px] text-[#2B1E16] dark:text-[#FDF6E2]">{d.dayName}</p>
-                    <p className="font-silk text-[8px] text-[#785944] dark:text-[#C5AC97]">{d.dateStr}</p>
+                    <p className="font-pixel text-[10px] text-ink">{d.dayName}</p>
+                    <p className="font-silk text-[8px] text-muted">{d.dateStr}</p>
                   </div>
                 </div>
               );
@@ -186,10 +186,10 @@ export default function WeeklyChart() {
           </div>
 
           {/* Bottom Status Banner */}
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-4 p-4 bg-[#FDF6E2] dark:bg-[#251A12] pixel-box text-xs">
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-4 p-4 bg-surface pixel-box text-xs">
             <div className="flex items-center gap-2">
               <img src="/pixel-assets/daisy_munching.gif" alt="Daisy" className="w-8 h-8 pixel-art" />
-              <span className="font-vt text-2xl text-[#2B1E16] dark:text-[#FDF6E2]">
+              <span className="font-vt text-2xl text-ink">
                 Daisy says: &ldquo;Keep logging your journey! Consistency unlocks clarity.&rdquo;
               </span>
             </div>
@@ -197,7 +197,7 @@ export default function WeeklyChart() {
               {Object.entries(EMOTION_SNACKS).map(([name, conf]) => (
                 <div key={name} className="flex items-center gap-1 font-silk text-[9px]">
                   <span className="w-2.5 h-2.5 pixel-box" style={{ backgroundColor: conf.color }} />
-                  <span className="hidden sm:inline text-[#2B1E16] dark:text-[#FDF6E2]">{name}</span>
+                  <span className="hidden sm:inline text-ink">{name}</span>
                 </div>
               ))}
             </div>

@@ -17,6 +17,7 @@
 | Verification and operations | [Reliability](RELIABILITY.md) |
 | Security boundaries | [Security](SECURITY.md) |
 | Completed task history | [Archive guidance](archive/README.md) |
+| Active handoff (theme, username sign-in, open security finding) | [Handoff 2026-11-18](exec-plans/active/username-signin-handoff-20261118.md) |
 
 Keep `PROJECT_OVERVIEW.md` as a concise living snapshot and `TASK.md` as the current work board, following project-specific tracking rules.
 

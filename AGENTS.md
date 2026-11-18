@@ -22,7 +22,7 @@ land here). This file adds project-specific guidance and wins on direct conflict
 - Clear inherited `SUPABASE_ACCESS_TOKEN` and `SUPABASE_PROJECT_REF` only in the child process before loading the local control file. Pass its PAT and explicit target only to that child command. Stop when the token is empty, masked or invalid; do not fall back to global login/keyring credentials or switch dashboard accounts.
 - Verify the intended project reference and access before mutations. Pass project flags explicitly; `SUPABASE_PROJECT_REF` in the local file records the target and is not automatically consumed by every CLI command. Never dump env files or reveal keys in tool output.
 
-Application variables: `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`; this app does not need a service-role key.
+Application variables: `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`. The server-only `SUPABASE_SERVICE_ROLE_KEY` is used solely by `src/app/api/auth/sign-in/route.ts` (username sign-in); never prefix it `NEXT_PUBLIC_` or import it from client code.
 Read the intended target from `.env.control.local`, compare it with the app URL and TASK.md, and retain any staging/production identity guards.
 Windows command details remain in the host's private `SUPABASE-CONTROL.md` when present. Preserve private env files and credential backups during cleanup.
 
