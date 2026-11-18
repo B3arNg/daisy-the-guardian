@@ -22,6 +22,8 @@ Written on Omarchy for continuing on Windows. Each host keeps its own `TASK.md` 
 4. Child-only token loading and explicit project ref still apply (`AGENTS.md`).
 5. `npm install`, then `npm run lint && npm test && npm run build`. Last Omarchy run: lint 0 errors (warnings only), 11/11 tests, build passes.
 
+**Done 2026-11-18 over SSH from Omarchy:** `develop` pulled at `2dae5a1` (fast-forward), service-role key added to Windows `.env.local`, Windows `.env.control.local` replaced by the new scoped PAT (normalized hashes match Omarchy; the previous files are kept under `temp-artifact/env-backup-20261118/`, Git-ignored). Windows checks: lint 0 errors, 11/11 tests (`npm test` now uses a glob so it runs on Windows), build passes, PAT metadata/API-keys/migrations calls all 200. Steps 1-3 above need no further action; the Windows `TASK.md` and `PROJECT_OVERVIEW.md` still need the notes ported by hand.
+
 ## Open items
 
 - **Security finding, not fixed.** `emotion_logs` has the permissive policies "Enable read for all users" (SELECT, `true`) and "Enable insert for all users" (INSERT, `true`) for role `public`. Anyone with the public anon key can read all mood logs and insert logs for any `user_id`. Dropping those two policies would not break the app (own-row policies remain; the UI filters by `user_id`). Needs the owner's go-ahead for a production write, then a check that a user sees only own rows and anon sees none.
